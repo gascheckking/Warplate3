@@ -1,24 +1,25 @@
-async function getGasPrice() {
+let currentGas = 0;
+
+async function fetchGas() {
   try {
-    const response = await fetch('https://api.owlracle.info/v4/base/gas?apikey=demo');
-    const data = await response.json();
-    const gwei = data.speeds[1].estimatedFee;
-    updateGasUI(gwei);
+    const res = await fetch('https://api.owlracle.info/v4/base/gas?apikey=demo');
+    const data = await res.json();
+    currentGas = data.speeds[1].estimatedFee;
+    updateGasUI();
   } catch (error) {
-    console.error("Error fetching gas:", error);
+    console.error("Gas Error:", error);
   }
 }
 
-function updateGasUI(gwei) {
+function updateGasUI() {
   const needle = document.getElementById('gasNeedle');
-  const display = document.getElementById('gasValue');
-  
-  // Uppdatera position (0-100%)
-  const position = Math.min(gwei / 100 * 100, 100);
+  const valueDisplay = document.getElementById('gasValue');
+  const maxGas = 100;
+
+  const position = (currentGas / maxGas) * 100;
   needle.style.left = `${position}%`;
-  display.textContent = `${gwei.toFixed(1)} Gwei`;
+  valueDisplay.textContent = `${currentGas.toFixed(1)} Gwei`;
 }
 
-// Uppdatera var 30:e sekund
-setInterval(getGasPrice, 30000);
-getGasPrice(); // Kör direkt
+setInterval(fetchGas, 30000);
+fetchGas();
